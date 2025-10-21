@@ -4,4 +4,4 @@ theme: minima
 
 exclude:
   - md-tuuner/**
-  - **/*.base.md
+  - **/*.base.html
