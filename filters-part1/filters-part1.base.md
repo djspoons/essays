@@ -1,4 +1,4 @@
-# Filters ~~for~~ from a Dummy, Part 1
+# Filters from a Dummy, Part 1
 
 Some reflections on digital audio filters, because 1) I needed to implement filters as part of building a software synthesizer and 2) analogies to electric circuits or mechanical springs mean almost nothing to me.  Hopefully these will help provide some intuitions for you. In part one: feed-forward filters (aka finite impulse response filters, aka filtering by convolution) in which I'm awestruck by what a little addition and multiplication can get you!
 

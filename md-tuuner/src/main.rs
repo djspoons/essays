@@ -160,6 +160,7 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     } else {
         output_file = path::Path::new(&args.output_dir).join(path::Path::new(&args.output_file));
     }
+    fs::remove_file(&output_file)?;
     fs::write(&output_file, &buf)?;
     let metadata = fs::metadata(&output_file)?;
     let mut permissions = metadata.permissions();
