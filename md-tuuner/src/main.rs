@@ -33,6 +33,7 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     let arena = Arena::new();
     let mut options = Options::default();
     options.extension.math_dollars = true;
+    options.extension.footnotes = true;
 
     let input = fs::read_to_string(&args.input_file)?;
     let root = parse_document(&arena, &input, &options);
@@ -110,9 +111,10 @@ fn main() -> Result<(), Box<dyn error::Error>> {
                 node_list.tight = true;
                 let list = arena.alloc(nodes::NodeValue::List(node_list).into());
 
-                let audio_files = fs::read_dir(&tmp_dir)?;
+                let mut audio_files: Vec<_> = fs::read_dir(&tmp_dir)?.collect::<Result<_, _>>()?;
+                audio_files.sort_by_key(|entry| entry.file_name());
                 for audio_file in audio_files {
-                    let file_name = audio_file?.file_name();
+                    let file_name = audio_file.file_name();
                     // Copy the file to the output directory
                     let dest_path = path::Path::new(&args.output_dir).join(&file_name);
                     println!("Copying {:?} to {:?}", tmp_dir.join(&file_name), &dest_path);
@@ -159,6 +161,10 @@ fn main() -> Result<(), Box<dyn error::Error>> {
         output_file = path::Path::new(&args.output_dir).join(path::Path::new(&args.output_file));
     }
     fs::write(&output_file, &buf)?;
+    let metadata = fs::metadata(&output_file)?;
+    let mut permissions = metadata.permissions();
+    permissions.set_readonly(true);
+    fs::set_permissions(&output_file, permissions)?;
 
     Ok(())
 }
