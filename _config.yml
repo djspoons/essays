@@ -3,5 +3,5 @@ title: essays by spoons
 theme: minima
 
 exclude:
-  - md-tuuner/**
-  - **/*.base.html
+  - "md-tuuner/**"
+  - "**/*.base.md"
