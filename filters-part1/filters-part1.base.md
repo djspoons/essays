@@ -77,23 +77,31 @@ Two last notes on moving average filters. First, we don't have much control over
 We've heard how the moving average filter affects sounds, and we've got maybe a little intuition for how it works ( it removes higher frequencies by smoothing out the waveform). And we've also heard how it has some interesting responses to different frequencies: it's not just a matter of passing through the low frequencies (for some definition of "low") and attenuating the high ones.
 
 To get a deeper understanding what's happening, let's do some math! I wrote the moving average filter above as you might expect an average to be written, but let's pull out the weights used in computing the average, which here are all equal. Here is the third order filter from above expressed as a sequence of weights:
+
 $$
 h = \left[ \frac{1}{4},\frac{1}{4},\frac{1}{4},\frac{1}{4} \right]
 $$
+
 Once we've done that, we can now write a generic equation for a feed-forward filter like this, where $K$ is the length of $h$:
+
 $$
 y[n] = \sum_0^{K-1} h[k] \cdot x[n - k]
 $$
+
 Remember we are assuming that $x$ is periodic, so we can just repeat the waveform to determine $x[n]$ for negative values of $n$.
 
 There's a special notation for this sum-of-products, called a convolution:
+
 $$
 y[n] = (h * x)[n]
 $$
+
 Or more simply:
+
 $$
 y = h * x
 $$
+
 In addition to being concise, this notation make clear that we have three mathematical objects that we can operate on: the input, the output, and the filter definition itself.
 
 
@@ -128,9 +136,11 @@ Here are two things you need to buy into:
 1.  The discrete Fourier transform (DFT) transforms periodic signals expressed as a function of time (that is, as a series of samples) into signals expressed as a combination of sinusoids at different frequencies, called a *spectrum*. That is, it breaks down a complex waveform into the contributions of a number of simple waveforms. These two representations are equivalent: either can be used to faithfully recreate the other.
 
 2.  In addition to convolution in the time domain (for example, the weighted average above), feed-forward filters can be implemented by *element-wise product* in the frequency domain. That is, if we take the DFT of the signal and the DFT of the filter and multiply each pair of elements together, the result will be the DFT of the convolution of the original signal and filter. (If we want to convert the result back into the time domain, we can take the inverse DFT of the element-wise product.) This is called the "convolution theorem" and can be written like this:
+
     $$
     Y[m] = H[m] \cdot X[m]
     $$
+
     (Where $Y$, $H$, and $X$ are the DFTs of $y$, $h$, and $x$, respectively.)
 
 Covering these properly is more than I can do in a short piece like this, so I highly recommend [Brian McFee's Digital Signals Theory](https://brianmcfee.net/dstbook-site/content/intro.html) which presents both of these in detail and with some wonderful interactive plots. It focuses on the discrete case, which is particularly helpful for me. I'm going do a short version which follows some of McFee's approach here.
@@ -144,9 +154,11 @@ The second claim is a little more subtle, though you've already seen it in actio
 As a simple example, if we take a waveform which is comprised of two components, say $x = x_1 + x_2$, then it's easy to show that we can apply the convolution to each component and then add the results. (This is just distributing multiplication over addition.)
 
 <!-- linearity of DFT -->
+
 $$
 y[n] = (h * x)[n] =  \sum_0^{K-1} h[k] \cdot x[n - k] = \sum_0^{K-1} h[k] \cdot (x_1[n - k] + x_2[n - k])
 $$
+
 $$
   = \sum_0^{K-1} h[k] \cdot x_1[n - k] + \sum_0^{K-1} h[k] \cdot x_2[n - k] = (h * x_1)[n] + (h * x_2)[n]
 $$
@@ -168,7 +180,9 @@ When computing the similarity with each sinusoid, remember that all of values of
 These three cases can be pictured as in the examples below. Notice that the similarity of the first case is entirely positive, the second case has equal positive and negative parts, and the third case not-quite-equal positive and negative parts.
 
 ![High similarity](similar-case1.png)
+
 ![Zero similarity](similar-case2.png)
+
 ![Low similarity](similar-case3.png)
 
 If we plot the magnitude of the similarity of a moving average filter to different sinusoids as a function of frequency of those sinusoids, we get something like the following:
