@@ -121,17 +121,15 @@ fn main() -> Result<(), Box<dyn error::Error>> {
                     fs::copy(tmp_dir.join(&file_name), &dest_path)?;
 
                     // Insert a the audio tags
-                    let audio = nodes::NodeHtmlBlock {
-                        block_type: 7,
-                        literal: format!(
+                    let paragraph = arena.alloc(nodes::NodeValue::Paragraph.into());
+                    let audio = arena.alloc(nodes::NodeValue::HtmlInline(format!(
                             "<audio controls>\n<source src=\"{}\" type=\"audio/wav\">\nYour browser does not support the audio element.\n</audio>",
                             dest_path.file_name().unwrap().display()
-                        ),
-                    };
-                    let audio = arena.alloc(nodes::NodeValue::HtmlBlock(audio).into());
+                        )).into());
+                    paragraph.append(audio);
 
                     let item = arena.alloc(nodes::NodeValue::Item(node_list).into());
-                    item.append(audio);
+                    item.append(paragraph);
                     list.append(item);
                 }
                 fs::remove_dir_all(&tmp_dir)?;

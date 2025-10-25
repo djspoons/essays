@@ -42,13 +42,11 @@ One use of a low-pass filter is to remove noise from a signal. If we take a pure
 tuun "--ui=false" "--date-format=" "--buffer-size=16384" "-C" "context.tuun" "-p" "($220 + noise * 0.25) * 0.75 | fin(time - 5) | capture(\"01-moving-avg-noise-orig\")" "-p" "($220 + noise * 0.25) * 0.75 | fin(time - 5) | moving_average(15) | capture(\"02-moving-avg-noise-ma15\")"
 -->
 
-- 
-  <audio controls>
+- <audio controls>
   <source src="01-moving-avg-noise-orig.wav" type="audio/wav">
   Your browser does not support the audio element.
   </audio>
-- 
-  <audio controls>
+- <audio controls>
   <source src="02-moving-avg-noise-ma15.wav" type="audio/wav">
   Your browser does not support the audio element.
   </audio>
@@ -63,13 +61,11 @@ A "click" is another type of distortion that you might like to remove from an au
 tuun "--ui=false" "--date-format=" "--buffer-size=16384" "-C" "context.tuun" "-p" "$220 + res($1, fixed([1,1,1])) | fin(time - 5) | capture(\"01-moving-avg-clicks-orig\")" "-p" "$220 + res($1, fixed([1,1,1])) | fin(time - 5) | moving_average(15) | capture(\"02-moving-avg-clicks-ma15\")"
 -->
 
-- 
-  <audio controls>
+- <audio controls>
   <source src="01-moving-avg-clicks-orig.wav" type="audio/wav">
   Your browser does not support the audio element.
   </audio>
-- 
-  <audio controls>
+- <audio controls>
   <source src="02-moving-avg-clicks-ma15.wav" type="audio/wav">
   Your browser does not support the audio element.
   </audio>
@@ -84,13 +80,11 @@ Since we'd like to better understand how the moving average filter affects diffe
 tuun "--ui=false" "--date-format=" "--buffer-size=16384" "-C" "context.tuun" "-p" "($220 + $2560) * 0.6 | fin(time - 5) | capture(\"01-moving-avg-2tones-orig\")" "-p" "($220 + $2560) * 0.6 | fin(time - 5) | moving_average(15) | capture(\"02-moving-avg-2tones-ma15\")"
 -->
 
-- 
-  <audio controls>
+- <audio controls>
   <source src="01-moving-avg-2tones-orig.wav" type="audio/wav">
   Your browser does not support the audio element.
   </audio>
-- 
-  <audio controls>
+- <audio controls>
   <source src="02-moving-avg-2tones-ma15.wav" type="audio/wav">
   Your browser does not support the audio element.
   </audio>
@@ -103,8 +97,7 @@ Moving average filters have some surprising (to me) behavior. This waveform uses
 tuun "--ui=false" "--date-format=" "--buffer-size=16384" "-C" "context.tuun" "-p" "($220 + $(linear(2560, 40))) * 0.6 | fin(time - 10) | moving_average(15) | capture(\"01-moving-avg-2tones-changing\")"
 -->
 
-- 
-  <audio controls>
+- <audio controls>
   <source src="01-moving-avg-2tones-changing.wav" type="audio/wav">
   Your browser does not support the audio element.
   </audio>
@@ -167,8 +160,7 @@ Before we go further, grab a pencil and as you listen to the following waveform,
 tuun "--ui=false" "--date-format=" "--buffer-size=16384" "-C" "context.tuun" "-p" "" "-p" "$(linear(100, 500)) | fin(time - 20) | moving_average(15) | capture(\"01-moving-avg-1tone-changing\")"
 -->
 
-- 
-  <audio controls>
+- <audio controls>
   <source src="01-moving-avg-1tone-changing.wav" type="audio/wav">
   Your browser does not support the audio element.
   </audio>
@@ -191,7 +183,7 @@ Here are two things you need to buy into:
    
    (Where $Y$, $H$, and $X$ are the DFTs of $y$, $h$, and $x$, respectively.)
 
-Covering these properly is more than I can do in a short piece like this, so I highly recommend [Brian McFee's Digital Signals Theory](https://brianmcfee.net/dstbook-site/content/intro.html) which presents both of these in detail and with some wonderful interactive plots. It focuses on the discrete case, which is particularly helpful for me. I'm going do a short version which follows some of McFee's approach here.
+Covering these properly is more than I can do in a short piece like this, so I highly recommend [Brian McFee's Digital Signals Theory](https://brianmcfee.net/dstbook-site/content/intro.html) which presents both of these in detail and with some wonderful interactive plots. It focuses on the discrete case, which is particularly helpful for me. I'm going do a short version that follows some of McFee's approach here.
 
 Starting with the first claim: how does the DFT start with the waveform and find the right combination of sinusoids? Roughly, the DFT works by taking a set of pure sinusoids and computing how similar each sinusoid is to the original waveform. This similarity will indicate how much particular sinusoid contributes to the original waveform.
 
@@ -217,7 +209,7 @@ But what *is* the DFT of the filter? We haven't really considered what it means 
 
 We need $x$ and $h$ to have the same length, we first extend $h$ with zeros out to the length of $x$. Those zeros won't contribute to the DFT of $h$ since the similarity of all of those points will be zero for any of the sinusoids: we can just focus on the first $K$ samples of $h$ (where it's non-zero).
 
-When computing the similarity with each sinusoid, remember that all of values of $h[n]$ for $n \le k$ are positive (each equal to $1/K$) so we can focus on the sign and magnitude of the first $K$ values of that *sinusoid*.[^1] Let's consider the similarity to $h$ with sinusoids in three broad groups:
+Next, we need to compute the similarity of $h$ with each of the pure sinusoids. Remember that all of values of $h[n]$ for $n \le k$ are positive (each equal to $1/K$) so we can focus on the sign and magnitude of the first $K$ values of a given sinusoid.[^1] Let's consider the similarity to $h$ with sinusoids in three broad groups:
 
 - Sinusoids where the wavelength is greater than $2K$ samples. Since all the samples of the sinusoid will have the same sign for at least $K$ values, there will be a strong similarity between the sinusoid and $h$.
 
@@ -227,11 +219,9 @@ When computing the similarity with each sinusoid, remember that all of values of
 
 These three cases can be pictured as in the examples below. Notice that the similarity of the first case is entirely positive, the second case has equal positive and negative parts, and the third case not-quite-equal positive and negative parts.
 
-![High similarity](similar-case1.png)
-
-![Zero similarity](similar-case2.png)
-
-![Low similarity](similar-case3.png)
+<img src="similar-case1.png" alt="High similarity" width="30%" />
+  <img src="similar-case2.png" alt="Zero similarity" width="30%" />
+  <img src="similar-case3.png" alt="Low similarity" width="30%" />
 
 If we plot the magnitude of the similarity of a moving average filter to different sinusoids as a function of frequency of those sinusoids, we get something like the following:
 

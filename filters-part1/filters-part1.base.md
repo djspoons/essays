@@ -143,7 +143,7 @@ Here are two things you need to buy into:
 
     (Where $Y$, $H$, and $X$ are the DFTs of $y$, $h$, and $x$, respectively.)
 
-Covering these properly is more than I can do in a short piece like this, so I highly recommend [Brian McFee's Digital Signals Theory](https://brianmcfee.net/dstbook-site/content/intro.html) which presents both of these in detail and with some wonderful interactive plots. It focuses on the discrete case, which is particularly helpful for me. I'm going do a short version which follows some of McFee's approach here.
+Covering these properly is more than I can do in a short piece like this, so I highly recommend [Brian McFee's Digital Signals Theory](https://brianmcfee.net/dstbook-site/content/intro.html) which presents both of these in detail and with some wonderful interactive plots. It focuses on the discrete case, which is particularly helpful for me. I'm going do a short version that follows some of McFee's approach here.
 
 Starting with the first claim: how does the DFT start with the waveform and find the right combination of sinusoids? Roughly, the DFT works by taking a set of pure sinusoids and computing how similar each sinusoid is to the original waveform. This similarity will indicate how much particular sinusoid contributes to the original waveform.
 
@@ -169,7 +169,7 @@ But that is not quite what the second claim is saying: the second claim says tha
 
 We need $x$ and $h$ to have the same length, we first extend $h$ with zeros out to the length of $x$. Those zeros won't contribute to the DFT of $h$ since the similarity of all of those points will be zero for any of the sinusoids: we can just focus on the first $K$ samples of $h$ (where it's non-zero).
 
-When computing the similarity with each sinusoid, remember that all of values of $h[n]$ for $n \le k$ are positive (each equal to $1/K$) so we can focus on the sign and magnitude of the first $K$ values of that *sinusoid*.[^1] Let's consider the similarity to $h$ with sinusoids in three broad groups:
+Next, we need to compute the similarity of $h$ with each of the pure sinusoids. Remember that all of values of $h[n]$ for $n \le k$ are positive (each equal to $1/K$) so we can focus on the sign and magnitude of the first $K$ values of a given sinusoid.[^1] Let's consider the similarity to $h$ with sinusoids in three broad groups:
 
 * Sinusoids where the wavelength is greater than $2K$ samples. Since all the samples of the sinusoid will have the same sign for at least $K$ values, there will be a strong similarity between the sinusoid and $h$.
 
@@ -179,11 +179,9 @@ When computing the similarity with each sinusoid, remember that all of values of
 
 These three cases can be pictured as in the examples below. Notice that the similarity of the first case is entirely positive, the second case has equal positive and negative parts, and the third case not-quite-equal positive and negative parts.
 
-![High similarity](similar-case1.png)
-
-![Zero similarity](similar-case2.png)
-
-![Low similarity](similar-case3.png)
+<img src="similar-case1.png" alt="High similarity" width="30%" />
+  <img src="similar-case2.png" alt="Zero similarity" width="30%" />
+  <img src="similar-case3.png" alt="Low similarity" width="30%" />
 
 If we plot the magnitude of the similarity of a moving average filter to different sinusoids as a function of frequency of those sinusoids, we get something like the following:
 
