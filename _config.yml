@@ -3,5 +3,9 @@ title: essays by spoons
 theme: minima
 
 exclude:
+  - README.md
   - "md-tuuner/**"
   - "**/*.base.md"
+  - Gemfile
+  - Gemfile.lock
+  - vendor/bundle/
