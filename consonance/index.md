@@ -1,2 +1,0 @@
-
-* [Consonance and Dissonance](/consonance/)

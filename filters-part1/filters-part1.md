@@ -39,10 +39,10 @@ Where $x$ represents the input samples and $y$ is the output. This filter replac
 One use of a low-pass filter is to remove noise from a signal. If we take a pure tone and add noise to it (as you can hear in the first example below), we can use a 15th-order moving average filter to remove some of that noise (as you can hear in the second).
 <div class="container">
   <tuun-synth description="Pure tone + noise"
-    expression="($220 * 0.7 + noise * 0.3)">
+    expression="(0.7 * $220 + 0.3 * noise)">
   </tuun-synth>
   <tuun-synth description="Pure tone + noise with moving average filter"
-    expression="($220 * 0.7 + noise * 0.3) | moving_average(15)">
+    expression="(0.7 * $220 + 0.3 * noise) | moving_average(15)">
     </tuun-synth>
 </div>
 
@@ -67,10 +67,10 @@ One way to think about this case is that response of the filter is very "sharp" 
 Since we'd like to better understand how the moving average filter affects different frequencies, let's use waveforms comprised of only two pure tones — just two frequencies. The first waveform you can hear below is comprised of two component tones without a filter, while the second has the 15th-order moving average filter applied.
 <div class="container">
   <tuun-synth description="Two pure tones"
-    expression="($220 + $2560) * 0.5">
+    expression="0.5 * ($220 + $2560)">
   </tuun-synth>
   <tuun-synth description="Two pure tones with moving average filter"
-    expression="($220 + $2560) * 0.5 | moving_average(15)">
+    expression="0.5 * ($220 + $2560) | moving_average(15)">
     </tuun-synth>
 </div>
 
@@ -81,7 +81,7 @@ Moving average filters have some surprising (to me) behavior. This waveform uses
 <div class="container">
   <tuun-synth description="Pure tone + frequency sweep with moving average filter">
     <script type="text/tuun">
-      $220 * 0.3 + $(linear(2560, 40)) * 0.7 | fin(time - 10)
+      0.3 * $220 + 0.7 * $(linear(2560, 40)) | fin(time - 10)
         | moving_average(15)
     </script>
   </tuun-synth>

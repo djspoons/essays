@@ -33,14 +33,11 @@ Pitch is related to frequency _logarithmically_. As we increase the pitch, the f
 |                | B3    | 246.9          | B4    | 493.9          |
 | **Difference** | one step | 26.9        | one step | 53.9        |
 
-<!--
-Here, listen for yourself:
-
-```tuunel
-    [$220 $246.9 $440 $493.9]^1
-```
--->
-<!-- cargo run S 220 247 440 -->
+<div class="container">
+  <tuun-synth description="A3, B3, A4, B4">
+	 <map(fn(f) => $f * Hw, [220, 246.9, 440, 493.9])>
+  </tuun-synth>
+</div>
 
 Pitch is one of several perceptual scales: these are scales that describe how we (humans) react to the world around us, whether that's the brightness or color of light, the temperature or humidity of air, or the loudness of a sound. People have studied how we react to these aspects of our environment through a wonderful mix of physiology, psychology, and physics, and these studies have a wide range of applications from art to engineering.
 
@@ -71,6 +68,36 @@ There's one other confounding topic we need to consider: harmonics. When a strin
 
 We don't usually hear these frequencies as separate tones but as just one tone with a particular character or "timbre." Each instrument has its own timbre that is determined by the relative strengths of each of the harmonics (as well as non-harmonic overtones). This is important to our question about consonance because we need to be careful about whether we are asking about the consonance of two _complex_ tones (that is, ones that include harmonics) or _simple_ tones (ones that don't).
 
+For example, here is an example (again) of a pure tone, along with the same fundamental and five odd harmonics and a synthesized harmonica playing the same note.
+<div class="container">
+  <tuun-synth description="Pure A3">
+	$220 * Ww
+  </tuun-synth>
+  <tuun-synth description="Odd harmonics of A3">
+    {map(over(220), [1, 3, 5, 7, 9, 11])} * Ww
+  </tuun-synth>
+  <tuun-synth description="Synthesized harmonica A3">
+    // An example of subtractive synthesis from Welsh's Synthesizer Cookbook
+    let harmonica = fn(dur, freq) =>
+      let
+        // These are approximately Welsh's values but not exactly
+        osc1 = pulse(0.93 + 0.05 * $(1.6), freq),
+        osc2 = reset(osc1, pulse(0.7, add_cents(add_semitones(freq, 8), 7))),
+        osc = 0.375 * osc1 + 0.5 * osc2,
+        a = 0.13,
+        d = 0.33,
+        r = 0.33,
+        s = max(dur - (a + d + r), 0)
+      in
+        osc
+        | lpf(0.5, 1900)
+        | ADSR(a, d, 0.5, s, r)
+        | seq(time - dur),
+    in
+      harmonica(W, 220)
+  </tuun-synth>
+</div>
+
 ## Results
 
 So, when does a pair of tones sound consonant? When do the sound dissonant?
@@ -84,6 +111,29 @@ Plomp _et al_ tested only pure, single-frequency tones, and they also with only 
 ![Idealized plot of consonance of two tones as a function of the difference between the frequencies of those tones.](plomp-figure-10.png "Figure 10 from Plomp _et al_o")
 
 Presumably when the two tones are too close together some subjects have difficulty telling them apart, but as soon as they are far enough apart to be distinguished, they approach their most dissonant. Then as they get farther apart, they gradually get more consonant until they reach a "plateau" of consonance.
+
+Here are some examples of pairs of tones. Which sound the most dissonant to you?
+
+<div class="container">
+  <tuun-synth description="Dissonance examples" expanded>
+	<script type="text/tuun">
+      let
+        // Critical bandwidth at frequency f
+        ERB = fn(f) => f / 9.2645 + 24.7,
+        // Plays f and n * the critical bandwidth of f, then rest
+        play_pair = fn(f, n) => 0.5 * ($f + $(f + ERB(f) * n)) * Hw + Hrw
+      in
+        <[
+          play_pair(220, 0.6),
+          play_pair(330, 0.25),
+          play_pair(275, 1.0),
+          play_pair(440, 0.05),
+          play_pair(220, 0.4),
+          play_pair(330, 0.8)
+        ]>
+	</script>
+  </tuun-synth>
+</div>
 
 2. This relationship between consonance and frequency difference held regardless of the mean frequency of the two tones. That is, each of the graphs had the same shape whether the two tones were in the low, middle, or high range. However, the _scale_ of the graph changed: for tones with lower pitch, they reached both the maximum dissonance and maximum consonance sooner (that is, when the two tones were closer together).
 
@@ -140,6 +190,16 @@ In the case of complex tones that are an octave apart, every harmonic of the hig
 | Min. difference    |  220.0 |  0.0  | 220.0 |  0.0  |
 | % of critical band |  365%  |  0%   | 262%  |  0%   |
 
+In fact, it's hard to tell that there are even two different tones here.
+<div class="container">
+  <tuun-synth description="A3 and A4 with harmonics">
+    <script type="text/tuun">
+        0.3 * ({map(over(220), [1, 2, 3, 4])} +
+          {map(over(440), [1, 2])}) * Ww
+    </script>
+  </tuun-synth>
+</div>
+
 Given this, it's not surprising that octaves are consonant. If we look at a major fifth, a different but still consonant interval, we see that most of the harmonics are still far apart, which explains its consonant impression. (Though the third and second harmonics don't quite line up on an equal tempered scale, the difference is small enough that it's not easily perceived.)
 
 |                    |        |       |       |       |
@@ -148,6 +208,15 @@ Given this, it's not surprising that octaves are consonant. If we look at a majo
 | E4                 |        | 329.6 | 659.2 | 988.8 |
 | Min. difference    |  109.6 | 110.4 | 0.8   | 108.8 |
 | % of critical band |  202%  | 167%  | <1%   | 87%   |
+
+<div class="container">
+  <tuun-synth description="A3 and E4 with harmonics">
+    <script type="text/tuun">
+        0.3 * ({map(over(220), [1, 2, 3, 4])} +
+          {map(over(329.6), [1, 2, 3])}) * Ww
+    </script>
+  </tuun-synth>
+</div>
 
 Finally, if we look the interval between A3 and Eb4 – a diminished fifth, tritone, or "diabolic" interval – we can see that even though the the fundamental tones are more than the width of a critical band apart, the third/second and fourth/third harmonics (respectively) are dangerously close to that 25% threshold! This is considered one of the most dissonant intervals you can plan on a piano.
 
@@ -158,7 +227,27 @@ Finally, if we look the interval between A3 and Eb4 – a diminished fifth, trit
 | Min. difference    |  91.1  | 128.9 | 37.8  | 53.3  |
 | % of critical band |  171%  | 198%  | 40%   | 43%   |
 
-<!-- compare [220 311.1] to [660 622.2] and [880 993.3] -->
+<div class="container">
+  <tuun-synth description="A3 and Eb4 with harmonics">
+    <script type="text/tuun">
+        0.3 * ({map(over(220), [1, 2, 3, 4])} +
+          {map(over(311.1), [1, 2, 3])})
+    </script>
+  </tuun-synth>
+
+  <tuun-synth description="Comparison of pairs of A3 and Eb4 harmonics" expanded>
+    <script type="text/tuun">
+        let
+          play_pair = fn (f1, f2) => 0.5 * ($f1 + $f2) * Hw + Hrw
+        in
+          play_pair(220, 311.1) +
+          play_pair(440, 311.1) +
+          play_pair(660, 622.2) +
+          play_pair(880, 993.3)
+    </script>
+  </tuun-synth>
+
+</div>
 
 Even though small integer ratios don't directly explain consonance, the fact that overtones often follow a logarithmic progression helps explain why this has so often been given as an explanation. When the fundamental frequency of one tone is not related by a small integer ratio to another, it's likely that these two tones with include harmonics that fall within the same critical band, and thus produce a dissonance when heard together. Plomp _et al_ have a wonderful figure that shows this relationship. They showed that, if you assume that the dissonance for each of the harmonics can be added together and plot this total dissonance as a function of the difference between the fundamental frequencies, you get a chart with consonant peaks for those familiar intervals with small integer ratios.
 
@@ -199,8 +288,10 @@ Moran, H. & Pratt, C. C. (1926). Variability of judgments on musical intervals. 
 	year = {1926}
 }
 
+TODO need to mention Spectrum, Scales, etc.
 
 
 
+-->
 
---> 
+<script type="module" src="../tuun/tuun-synth.js"></script>
